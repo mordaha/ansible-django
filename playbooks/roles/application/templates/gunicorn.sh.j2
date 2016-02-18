@@ -1,0 +1,14 @@
+#!/bin/sh
+
+echo "Starting {{ application_name }} as `whoami`"
+
+cd {{ django_dir }}
+
+{% include "env.j2" %}
+
+exec {{ application_virtualenv_dir }}/bin/gunicorn wsgi:application \
+  --name {{ application_name }} \
+  --workers {{ gunicorn_workers }} \
+  --user={{ application_user }} \
+  --log-level={{ gunicorn_log_level }} \
+  --bind={{ gunicorn_bind }}

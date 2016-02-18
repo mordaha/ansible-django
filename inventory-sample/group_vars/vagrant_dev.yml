@@ -1,0 +1,20 @@
+---
+
+ansible_connection: ssh
+ansible_ssh_user: vagrant
+
+application_domain: "app.tld"
+application_name: "app_tld"
+
+application_env: "dev"
+application_user: vagrant
+application_dir: "/vagrant"
+application_virtualenv_dir: "/vagrant/.vagrant/.venv"
+
+django_debug: "true"
+local_dev: "true"
+
+gunicorn_port: "9001"
+
+nginx_default_server: true
+nginx_ssl_only: true

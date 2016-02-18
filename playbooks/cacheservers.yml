@@ -1,0 +1,6 @@
+---
+- name: Configure cache servers
+  hosts: cacheservers
+  sudo: yes
+  roles:
+    - { role: redis }

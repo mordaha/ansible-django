@@ -1,0 +1,11 @@
+---
+- name: Gather facts about applicatuion servers
+  hosts: appservers
+  gather_facts: yes
+
+
+- name: Configure database servers
+  hosts: dbservers
+  sudo: yes
+  roles:
+    - { role: postgresql }

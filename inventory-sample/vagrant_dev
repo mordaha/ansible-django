@@ -1,0 +1,15 @@
+[appservers]
+192.168.111.100
+
+[dbservers]
+192.168.111.100 control_ip=192.168.111.1
+
+
+[loadbalancers]
+192.168.111.100
+
+
+[vagrant_dev:children]
+appservers
+dbservers
+loadbalancers

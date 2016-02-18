@@ -1,0 +1,82 @@
+---
+- name: apt-get install nginx_packages
+  apt: >
+    pkg="{{ item }}"
+    update-cache=no
+    state=installed
+  with_items: "{{ nginx_packages }}"
+
+
+- name: create logging directory
+  sudo: yes
+  sudo_user: "{{ application_user }}"
+  file: >
+    path="{{ nginx_log_dir }}"
+    state=directory
+
+
+- name: remove default nginx site
+  file: >
+    path=/etc/nginx/sites-enabled/default
+    state=absent
+  notify: restart nginx
+
+
+- name: create ssl directory
+  sudo: yes
+  file: >
+    path="{{ nginx_ssl_dir }}"
+    mode=0700
+    state=directory
+
+
+- name: put ssl private key
+  sudo: yes
+  copy: >
+    content="{{ nginx_ssl_key }}"
+    dest="{{ nginx_ssl_key_file }}"
+    mode=0600
+
+
+- name: put ssl public key
+  sudo: yes
+  copy: >
+    content="{{ nginx_ssl_cert }}"
+    dest="{{ nginx_ssl_cert_file }}"
+    mode=0600
+
+
+- name: put nginx configuration file.
+  template: >
+    src=site-available.conf.j2
+    dest="/etc/nginx/sites-available/{{ application_name }}.conf"
+  notify: restart nginx
+
+
+- name: put symlink of configuration file.
+  file: >
+    src="/etc/nginx/sites-available/{{ application_name }}.conf"
+    dest="/etc/nginx/sites-enabled/{{ application_name }}.conf"
+    state=link
+  notify: restart nginx
+
+
+- name: synchronize public folder
+  synchronize: >
+    src="{{  nginx_public_src_dir }}"
+    dest="{{  nginx_public_dst_dir }}"
+#    partial=yes
+#  delegate_to: "{{ nginx_public_src_host }}"
+  when: application_env=="production" and nginx_public_src_host==""
+  tags:
+    - files
+
+
+- name: change nginx service startup order to 98 when application_env==dev
+  sudo: yes
+  shell: >
+    update-rc.d -f nginx remove && update-rc.d nginx defaults 98
+    removes="/etc/rc3.d/S20nginx"
+    creates="/etc/rc3.d/S98nginx"
+  when: application_env=="dev"
+

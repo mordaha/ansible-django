@@ -1,0 +1,16 @@
+*filter
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+COMMIT
+*nat
+:PREROUTING ACCEPT [1:179]
+:INPUT ACCEPT [1:179]
+:OUTPUT ACCEPT [4:242]
+:POSTROUTING ACCEPT [4:242]
+-A PREROUTING -i eth0 -p tcp -m tcp --dport 3000 -j DNAT --to-destination 127.0.0.1:3000
+-A PREROUTING -i eth0 -p tcp -m tcp --dport 8000 -j DNAT --to-destination 127.0.0.1:8000
+-A PREROUTING -i eth0 -p tcp -m tcp --dport   80 -j DNAT --to-destination 127.0.0.1:80
+-A PREROUTING -i eth0 -p tcp -m tcp --dport  443 -j DNAT --to-destination 127.0.0.1:443
+-A PREROUTING -i eth0 -p tcp -m tcp --dport 5432 -j DNAT --to-destination 127.0.0.1:5432
+COMMIT

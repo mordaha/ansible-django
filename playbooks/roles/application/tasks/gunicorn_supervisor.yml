@@ -1,0 +1,59 @@
+---
+- name: create {{ application_dir }}/bin directory
+  sudo: yes
+  sudo_user: "{{ application_user }}"
+  file: >
+    path="{{ application_dir }}/bin"
+    mode=0755
+    owner="{{ application_user }}"
+    state=directory
+
+
+- name: create {{ application_dir }}/log directory
+  sudo: yes
+  sudo_user: "{{ application_user }}"
+  file: >
+    path="{{ application_dir }}/log"
+    mode=0755
+    owner="{{ application_user }}"
+    state=directory
+
+
+- name: create {{ application_dir }}/run directory
+  sudo: yes
+  sudo_user: "{{ application_user }}"
+  file: >
+    path="{{ application_dir }}/run"
+    mode=0755
+    owner="{{ application_user }}"
+    state=directory
+
+
+- name: create bin/gunicorn.sh
+  sudo: yes
+  sudo_user: "{{ application_user }}"
+  template: >
+    src="gunicorn.sh.j2"
+    dest="{{ application_dir }}/bin/gunicorn.sh"
+    mode=0755
+
+
+- name: create supervisor configuration
+  sudo: yes
+  template: >
+    src="supervisor.conf.j2"
+    dest="/etc/supervisor/conf.d/{{ application_name }}.conf"
+    mode=0600
+
+
+- name: change supervisor service startup order to 98 when application_env==dev
+  sudo: yes
+  shell: >
+    update-rc.d -f supervisor remove && update-rc.d supervisor defaults 98
+    removes="/etc/rc3.d/S20supervisor"
+    creates="/etc/rc3.d/S98supervisor"
+  when: application_env=="dev"
+
+
+- name: restart supervisor
+  service: name=supervisor state=restarted sleep=2

@@ -1,0 +1,112 @@
+upstream {{ application_name }}_server {
+  {% for host in groups.get('appservers') %}
+    server {{ host }}:{{ gunicorn_port }} max_fails=3 fail_timeout=15s;
+  {% endfor %}
+}
+
+{% if not nginx_default_server %}
+# remove www. part
+  server {
+      listen       {{ inventory_hostname }}:80;
+      {% if application_env == 'dev' %}
+      listen       127.0.0.1:80;
+      {% endif %}
+      server_name  www.{{ application_domain }};
+      return       301 http://{{ application_domain }}$request_uri;
+  }
+
+  server {
+      listen       {{ inventory_hostname }}:443;
+      {% if application_env == 'dev' %}
+      listen       127.0.0.1:443;
+      {% endif %}
+      server_name  www.{{ application_domain }};
+      return       301 https://{{ application_domain }}$request_uri;
+
+        ssl on;
+        ssl_certificate      {{ nginx_ssl_cert_file }};
+        ssl_certificate_key  {{ nginx_ssl_key_file }};
+
+  }
+{% endif %}
+
+
+#-------------------------
+# SERVER - HTTP - 80
+#--------------------------
+{% if  nginx_ssl_only %}
+server {
+      listen       {{ inventory_hostname }}:80;
+        {% if application_env == 'dev' %}
+        listen       127.0.0.1:80;
+        {% endif %}
+      server_name  {{ application_domain }};
+      return       301 https://{{ application_domain }}$request_uri;
+}
+{% else %}
+server {
+
+    listen       {{ inventory_hostname }}:80;
+    {% if application_env == 'dev' %}
+    listen       127.0.0.1:80;
+    {% endif %}
+    server_name  {{ application_domain }};
+
+    access_log {{ nginx_log_dir }}/{{ application_name }}-access.log;
+    error_log {{ nginx_log_dir }}/{{ application_name }}-error.log;
+
+    {% include "server.j2" %}
+
+    location / {
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_redirect off;
+
+        proxy_pass http://{{ application_name }}_server;
+    }
+}
+{% endif %}
+
+
+#-------------------------
+# SERVER - HTTPS - 443
+#--------------------------
+server {
+
+    listen       {{ inventory_hostname }}:443 ssl;
+    {% if application_env == 'dev' %}
+    listen       127.0.0.1:443 ssl;
+    {% endif %}
+    server_name  {{ application_domain }};
+
+    ssl on;
+    ssl_certificate      {{ nginx_ssl_cert_file }};
+    ssl_certificate_key  {{ nginx_ssl_key_file }};
+
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+    ssl_ciphers ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:ECDH+3DES:DH+3DES:RSA+AESGCM:RSA+AES:RSA+3DES:!aNULL:!MD5:!DSS;
+    ssl_prefer_server_ciphers on;
+    ssl_session_cache shared:SSL:20m;
+    ssl_session_timeout 20m;
+    add_header Strict-Transport-Security "max-age=31536000; includeSubdomains";
+
+    access_log {{ nginx_log_dir }}/{{ application_name }}-access-ssl.log;
+    error_log {{ nginx_log_dir }}/{{ application_name }}-error-ssl.log;
+
+    {% include "server.j2" %}
+
+    location / {
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
+        proxy_set_header X-Scheme $scheme;
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Real-IP $remote_addr;
+	    proxy_set_header HTTPS 'on';
+        proxy_redirect off;
+
+        proxy_pass http://{{ application_name }}_server;
+    }
+
+}
+

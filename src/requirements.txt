@@ -1,0 +1,7 @@
+Django
+coverage
+tox
+gunicorn
+psycopg2
+django-dotenv
+teamcity-messages

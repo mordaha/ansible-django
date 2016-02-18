@@ -1,0 +1,23 @@
+
+    charset utf8;
+    keepalive_timeout    70;
+    client_max_body_size 300m;
+
+    error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+        root   html;
+    }
+
+    location  /static/ {
+        alias {{ application_dir }}/public/static/;
+    }
+
+    location  /media/ {
+	    add_header Cache-Control private;
+        alias {{ application_dir }}/public/media/;
+    }
+
+    location /robots.txt {
+      root {{ application_dir }}/public/;
+    }
+

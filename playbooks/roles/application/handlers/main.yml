@@ -1,0 +1,23 @@
+#- name: restart uwsgi
+#  sudo_user: root
+#  service: >
+#    name=${project.name}-uwsgi
+#    state=restarted
+
+
+- name: restart supervisor
+  sudo: yes
+  service: >
+    name=supervisor
+    state=restarted
+    sleep=2
+    
+- name: reload sysctl
+  sudo: yes
+  command: sysctl --system -p
+
+- name: reload iptables
+  sudo: yes
+  service: >
+    name=iptables-persistent 
+    state=restarted

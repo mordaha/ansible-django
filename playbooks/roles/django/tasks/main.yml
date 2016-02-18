@@ -1,0 +1,83 @@
+---
+
+- name: create application user and home
+  user: >
+    name="{{ django_user }}"
+    state=present
+  tags:
+    - base
+    - user
+    - provision
+    - app
+
+
+- name: create django_dir
+  sudo: true
+  file: >
+    path="{{ django_dir }}"
+    mode=0755
+    owner="{{ django_user }}"
+    state=directory
+  tags:
+    - base
+    - user
+    - provision
+    - app
+
+
+- name: apt-get nstall django_packages
+  apt: >
+    pkg="{{ item }}"
+    state=installed
+    update-cache=no
+  with_items: "{{ django_packages }}"
+  tags:
+    - base
+    - packages
+    - provision
+    - app
+
+
+- name: create .ssh dir
+  become: yes
+  become_user: "{{ django_user }}"
+  file: >
+    path=".ssh"
+    state=directory
+    mode=0700
+
+
+- name: copy git_rsa_pub key
+  become: yes
+  become_user: "{{ django_user }}"
+  copy: >
+    content="{{ git_rsa_pub }}"
+    dest=".ssh/id_rsa.pub"
+    mode=0600
+
+
+- name: copy git_rsa_key key
+  become: yes
+  become_user: "{{ django_user }}"
+  copy: >
+    content="{{ git_rsa_key }}"
+    dest=".ssh/id_rsa"
+    mode=0600
+
+
+- name: git pull from django_git_repository
+  sudo: yes
+  sudo_user: "{{ django_user }}"
+  git: >
+    repo="{{ django_git_repository }}"
+    dest="{{ django_dir }}"
+    version="{{ django_git_branch }}"
+    accept_hostkey=yes
+    force=yes
+    update=yes
+  tags:
+    - repo
+    - app
+
+  notify:
+    - restart uwsgi

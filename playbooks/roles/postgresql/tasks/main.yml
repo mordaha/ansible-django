@@ -1,0 +1,66 @@
+---
+- name: apt-get install posgresql_packages
+  apt: >
+    pkg="{{ item }}"
+    state=installed
+    update-cache=yes
+  with_items: "{{ postgresql_packages }}"
+
+
+- name: listen on public interface
+  lineinfile: >
+    dest="/etc/postgresql/{{ postgresql_version }}/main/postgresql.conf"
+    insertafter="^#listen_addresses"
+    line="listen_addresses = '*'"
+    state=present
+  notify: restart postgresql
+
+
+- name: remove all ^host access lines from pg_hba.conf
+  lineinfile: >
+    dest="/etc/postgresql/{{ postgresql_version }}/main/pg_hba.conf"
+    regexp="^host.+trust"
+    state=absent
+  with_items: groups.get('appservers')
+  notify: restart postgresql
+
+
+- name: allow access to appservers
+  lineinfile: >
+    dest="/etc/postgresql/{{ postgresql_version }}/main/pg_hba.conf"
+    regexp="host {{ postgresql_db_name }} {{ postgresql_db_user }} {{ item }}/32 trust"
+    line="host {{ postgresql_db_name }} {{ postgresql_db_user }} {{ item }}/32 trust"
+    state=present
+  with_items: groups.get('appservers')
+  notify: restart postgresql
+
+
+- name: allow access to control_ip
+  lineinfile: >
+    dest="/etc/postgresql/{{ postgresql_version }}/main/pg_hba.conf"
+    regexp="host all all {{ control_ip }}/32 trust"
+    line="host all all {{ control_ip }}/32 trust"
+    state=present
+  notify: restart postgresql
+  when: application_env == "dev"
+
+
+- name: create user postgresql_db_user
+  sudo: true
+  sudo_user: postgres
+  postgresql_user: >
+    user="{{ postgresql_db_user }}"
+    password="{{ postgresql_db_password }}"
+    role_attr_flags=CREATEDB,NOSUPERUSER
+    state=present
+
+
+- name: create db postgresql_db_name
+  sudo_user: postgres
+  postgresql_db: >
+    name="{{ postgresql_db_name }}"
+    owner="{{ postgresql_db_user }}"
+    login_host="localhost"
+    login_user="{{ postgresql_db_user }}"
+    login_password="{{ postgresql_db_password }}"
+    encoding="UTF8"

@@ -1,0 +1,145 @@
+---
+
+- name: create application_user
+  user: >
+    name="{{ application_user }}"
+    state=present
+
+
+- name: create application_dir
+  sudo: yes
+  file: >
+    path="{{ application_dir }}"
+    mode=0755
+    owner="{{ application_user }}"
+    state=directory
+  when: application_env == "production"
+
+
+- name: apt-get install application_packages
+  apt: >
+    pkg="{{ item }}"
+    state=installed
+    update-cache=yes
+  with_items: "{{ application_packages }}"
+
+
+- name: create .ssh dir
+  become: yes
+  become_user: "{{ application_user }}"
+  file: >
+    path=".ssh"
+    state=directory
+    mode=0700
+
+
+- name: copy git_rsa_pub key
+  sudo: yes
+  sudo_user: "{{ application_user }}"
+  copy: >
+    content="{{ git_rsa_pub }}"
+    dest="~/.ssh/id_rsa.pub"
+    mode=0600
+
+
+- name: copy git_rsa_key key
+  sudo: yes
+  sudo_user: "{{ application_user }}"
+  copy: >
+    content="{{ git_rsa_key }}"
+    dest="~/.ssh/id_rsa"
+    mode=0600
+
+
+- name: git pull from application_git_repository
+  sudo: yes
+  sudo_user: "{{ application_user }}"
+  git: >
+    repo="{{ application_git_repository }}"
+    dest="{{ application_dir }}"
+    version="{{ application_git_branch }}"
+    accept_hostkey=yes
+    force=yes
+    update=yes
+  when: application_env == "production"
+
+
+- name: create virtualenv in application_dir
+  sudo: yes
+  sudo_user: "{{ application_user }}"
+  pip: >
+    requirements="{{ item }}"
+    virtualenv="{{ application_virtualenv_dir }}"
+    virtualenv_command="/usr/bin/virtualenv -p python3"
+  with_items: "{{ application_virtualenv_requirements }}"
+
+
+- name: extra virtualenv packages
+  sudo: yes
+  sudo_user: "{{ application_user }}"
+  pip: >
+    name="{{ item }}"
+    virtualenv="{{ application_virtualenv_dir }}"
+    virtualenv_command="/usr/bin/virtualenv -p python3"
+  with_items: "{{ application_virtualenv_extra_packages }}"
+
+
+- name: create .env file
+  sudo: yes
+  sudo_user: "{{ application_user }}"
+  template: >
+    src="env.j2"
+    dest="{{ django_dir }}/.env"
+
+
+- name: create user .profile
+  sudo: yes
+  sudo_user: "{{ application_user }}"
+  template: >
+    src="profile.j2"
+    dest="~/.profile"
+  when: application_env == "dev"
+
+
+- name: do migrations
+  sudo: yes
+  sudo_user: "{{ application_user }}"
+  django_manage: >
+    app_path="{{ django_dir }}"
+    command="migrate"
+    virtualenv="{{ application_virtualenv_dir }}"
+    settings="project.settings"
+
+
+- name: do collectstatic
+  sudo: yes
+  sudo_user: "{{ application_user }}"
+  django_manage: >
+    app_path="{{ django_dir }}"
+    command="collectstatic"
+    virtualenv="{{ application_virtualenv_dir }}"
+    settings="project.settings"
+
+
+- name: create gunicorn/supervisor
+  include: gunicorn_supervisor.yml
+#  when: application_env == "production"
+
+
+- name: create iptables rules for dev port forwarding
+  sudo: yes
+  template: >
+    src="rules.v4.j2"
+    dest="/etc/iptables/rules.v4"
+  notify: reload iptables
+  when: application_env == "dev"
+
+
+- name: sysctl net.ipv4.conf.ethX.route_localnet=1 in /etc/sysctl.d/
+  sudo: yes
+  template: >
+    src="10-route_localnet.j2"
+    dest="/etc/sysctl.d/10-route_localnet.conf"
+  notify: reload sysctl
+  when: application_env == "dev"
+

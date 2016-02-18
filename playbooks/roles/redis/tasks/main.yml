@@ -1,0 +1,8 @@
+---
+
+- name: apt-get nstall redis_packages
+  apt: >
+    pkg="{{ item }}"
+    state=installed
+    update-cache=no
+  with_items: "{{ redis_packages }}"

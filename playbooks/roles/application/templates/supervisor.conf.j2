@@ -1,0 +1,5 @@
+[program:{{ application_name }}]
+command = {{ application_dir }}/bin/gunicorn.sh
+user = {{ application_user }}
+stdout_logfile = {{ application_dir }}/log/supervisor.log
+rirect_stderr = true

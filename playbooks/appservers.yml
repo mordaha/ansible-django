@@ -1,0 +1,13 @@
+---
+- name: Gather facts about database servers
+  hosts: dbservers
+  gather_facts: yes
+
+
+- name: Configure application servers
+  hosts: appservers
+  sudo: yes
+  roles:
+    - { role: application }
+    - { role: redis }
+
