@@ -16,11 +16,14 @@
   when: application_env == "production"
 
 
+- name: update apt
+  apt: update_cache=yes cache_valid_time=86400
+
+
 - name: apt-get install application_packages
   apt: >
     pkg="{{ item }}"
     state=installed
-    update-cache=yes
   with_items: "{{ application_packages }}"
 
 
@@ -49,6 +52,23 @@
     content="{{ git_rsa_key }}"
     dest="~/.ssh/id_rsa"
     mode=0600
+
+
+- name: Ensure ~{{ application_user }}/.ssh/known_hosts file exists
+  file: >
+    path="~{{ application_user }}/.ssh/known_hosts"
+    state=touch
+
+
+- name: Adding application_known_hosts
+  shell: if [ ! -n "$(grep "^{{ item }}" ~{{ application_user }}/.ssh/known_hosts)" ]; then ssh-keyscan {{ item }} >> ~{{ application_user }}/.ssh/known_hosts 2>/dev/null; fi
+  with_items: "{{ application_ssh_known_hosts }}"
+
+
+- name: remove stale pip virtualenv/build dir
+  file: >
+    path="{{ application_virtualenv_dir }}/build"
+    state=absent
 
 
 - name: git pull from application_git_repository

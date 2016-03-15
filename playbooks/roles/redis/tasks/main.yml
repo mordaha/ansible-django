@@ -1,8 +1,10 @@
 ---
+- name: update apt
+  apt: update_cache=yes cache_valid_time=86400
+
 
 - name: apt-get nstall redis_packages
   apt: >
     pkg="{{ item }}"
     state=installed
-    update-cache=no
   with_items: "{{ redis_packages }}"

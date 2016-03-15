@@ -1,10 +1,28 @@
 ---
+- name: update apt
+  apt: update_cache=yes cache_valid_time=86400
+
+
 - name: apt-get install posgresql_packages
   apt: >
     pkg="{{ item }}"
     state=installed
-    update-cache=yes
   with_items: "{{ postgresql_packages }}"
+
+
+- name: add ubuntu-gis ppa
+  apt_repository: >
+    repo="{{ postgresql_postgis_repository }}"
+    state=present
+  when: postgresql_postgis_enabled
+
+
+- name: install geo packages
+  apt: >
+    pkg="{{ item }}"
+    state=installed
+  with_items: "{{ postgresql_postgis_packages }}"
+  when: postgresql_postgis_enabled
 
 
 - name: listen on public interface
@@ -55,6 +73,17 @@
     state=present
 
 
+- name: create user postgresql_db_user with SUPERUSER privileges for PostGIS < change this!
+  sudo: true
+  sudo_user: postgres
+  postgresql_user: >
+    user="{{ postgresql_db_user }}"
+    password="{{ postgresql_db_password }}"
+    role_attr_flags=CREATEDB,SUPERUSER
+    state=present
+  when: postgresql_postgis_enabled
+
+
 - name: create db postgresql_db_name
   sudo_user: postgres
   postgresql_db: >
@@ -64,3 +93,9 @@
     login_user="{{ postgresql_db_user }}"
     login_password="{{ postgresql_db_password }}"
     encoding="UTF8"
+
+
+- name: create postgis extension
+  sudo_user: postgres
+  command: "/usr/bin/psql -d {{ postgresql_db_name }} -c 'CREATE EXTENSION IF NOT EXISTS postgis;'"
+  when: postgresql_postgis_enabled
