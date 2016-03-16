@@ -21,7 +21,6 @@ application_user: "appuser"
 application_git_repository: "git@github.com:user/repo.git"
 application_git_branch: "master"
 application_env: production # or dev
-application_gis: true
 application_packages:
   - build-essential
   - git
@@ -58,19 +57,15 @@ application_virtualenv_extra_packages:
 
 
 application_db_engine: "django.db.backends.postgresql"
-application_gis_db_engine: "django.contrib.gis.db.backends.postgis"
-
 application_db_name: "{{ application_name }}"
 application_db_user: "{{ application_user }}"
 application_db_password: "12345"
 
-application_ssh_known_hosts:
-  - github.com
-  - bitbucket.org
+
 
 # django
 django_dir: "{{ application_dir }}/src"
-django_secret_key: 1wkfhsdjhfksdjhfksdjhfkdsjhfkjdsahfkjshas
+django_secret_key: wkfhsdjhfksdjhfksdjhfkdsjhfkjdsahfkjshas
 django_debug: "false"
 local_dev: "false"
 
@@ -101,13 +96,6 @@ postgresql_packages:
   - postgresql-doc
   - libpq-dev
 postgresql_version: "9.3"
-postgresql_postgis_enabled: "{{ application_gis }}"
-postgresql_postgis_repository: "ppa:ubuntugis/ubuntugis-unstable"
-postgresql_postgis_packages:
-    - postgresql-9.3-postgis-2.1
-    - proj-bin
-    - gdal-bin
-    - libgeos-3.4.2
 
 
 # nginx

@@ -71,9 +71,10 @@
     password="{{ postgresql_db_password }}"
     role_attr_flags=CREATEDB,NOSUPERUSER
     state=present
+  when: application_env != 'dev'
 
 
-- name: create user postgresql_db_user with SUPERUSER privileges for PostGIS < change this!
+- name: create user postgresql_db_user with SUPERUSER privileges for dev server
   sudo: true
   sudo_user: postgres
   postgresql_user: >
@@ -81,7 +82,7 @@
     password="{{ postgresql_db_password }}"
     role_attr_flags=CREATEDB,SUPERUSER
     state=present
-  when: postgresql_postgis_enabled
+  when: application_env == 'dev'
 
 
 - name: create db postgresql_db_name

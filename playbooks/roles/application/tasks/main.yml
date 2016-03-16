@@ -27,6 +27,11 @@
   with_items: "{{ application_packages }}"
 
 
+- name: install nodejs
+  include: nodejs.yml
+  when: application_env == "dev"
+
+
 - name: create .ssh dir
   become: yes
   become_user: "{{ application_user }}"
