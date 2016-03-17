@@ -29,7 +29,7 @@
 
 - name: install nodejs
   include: nodejs.yml
-  when: application_env == "dev"
+  when: application_env == "dev" and application_nodejs_deploy
 
 
 - name: create .ssh dir
