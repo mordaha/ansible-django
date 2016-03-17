@@ -12,6 +12,21 @@
         alias {{ application_dir }}/public/static/;
     }
 
+    location /media/files/ {
+        secure_link $arg_md5,$arg_expires;
+        secure_link_md5 "$secure_link_expires$uri$remote_addr {{ django_secret_key }}";
+
+        if ($secure_link = "") {
+          return 403;
+        }
+
+        if ($secure_link = "0") {
+          return 410;
+        }
+
+        root {{ application_dir }}/public/;
+    }
+
     location  /media/ {
 	    add_header Cache-Control private;
         alias {{ application_dir }}/public/media/;
