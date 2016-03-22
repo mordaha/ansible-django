@@ -1,4 +1,4 @@
-Ansible scripts to deploy django project
+Ansible for Django (django+gunicorn+nginx+postgresql+redis)
 ===========
 
 
