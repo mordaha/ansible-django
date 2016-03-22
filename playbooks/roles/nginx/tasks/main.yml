@@ -71,9 +71,9 @@
     dest="{{  nginx_public_dst_dir }}"
 #    partial=yes
 #  delegate_to: "{{ nginx_public_src_host }}"
-  when: application_env=="production" and nginx_public_src_host==""
+  when: nginx_sync_public_dir
   tags:
-    - files
+    - public-files
 
 
 - name: change nginx service startup order to 98 when application_env==dev
