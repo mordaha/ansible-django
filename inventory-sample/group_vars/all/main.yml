@@ -68,6 +68,7 @@ application_ssh_known_hosts:
   - github.com
   - bitbucket.org
 
+application_nodejs_deploy: false
 application_nodejs_version: "5.x"
 
 # django
