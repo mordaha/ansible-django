@@ -3,4 +3,5 @@
   hosts: cacheservers
   sudo: yes
   roles:
+    - { role: common }
     - { role: redis }

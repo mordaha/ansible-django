@@ -8,6 +8,7 @@
   hosts: appservers
   sudo: yes
   roles:
+    - { role: common }
     - { role: application }
     - { role: redis }
 

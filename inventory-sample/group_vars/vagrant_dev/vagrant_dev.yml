@@ -11,6 +11,10 @@ application_user: vagrant
 application_dir: "/vagrant"
 application_virtualenv_dir: "/vagrant/.vagrant/.venv"
 
+# for production env
+# application_git_repository: "git@bitbucket.org:user/repo.git"
+# application_git_branch: "master"
+
 django_debug: "true"
 local_dev: "true"
 

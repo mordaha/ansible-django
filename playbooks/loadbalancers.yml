@@ -1,11 +1,11 @@
 ---
-#- name: Gather facts about application servers
-#  hosts: appservers
-#  gather_facts: yes
-
+- name: Gather facts about applicatuion servers
+  hosts: appservers
+  gather_facts: yes
 
 - name: Configure loadbalancers
   hosts: loadbalancers
   sudo: yes
   roles:
+    - { role: common }
     - { role: nginx }

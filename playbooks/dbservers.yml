@@ -8,4 +8,5 @@
   hosts: dbservers
   sudo: yes
   roles:
+    - { role: common }
     - { role: postgresql }

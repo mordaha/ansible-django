@@ -21,7 +21,7 @@ application_user: "appuser"
 application_git_repository: "git@github.com:user/repo.git"
 application_git_branch: "master"
 application_env: production # or dev
-application_gis: true
+application_gis: false
 application_packages:
   - build-essential
   - git
@@ -119,22 +119,29 @@ nginx_packages:
   - nginx-extras
 nginx_log_dir: "{{ application_dir }}/log"
 nginx_ssl_dir: "/etc/nginx/ssl"
-nginx_ssl_key: |
-  ssl private key, set it in private.yml
-nginx_ssl_cert: |
-  ssl public key,  set it in private.yml
 nginx_ssl_only: false
+nginx_use_secure_link: false
 nginx_ssl_cert_file: "{{ nginx_ssl_dir }}/{{ application_name }}.cert"
 nginx_ssl_key_file: "{{ nginx_ssl_dir }}/{{ application_name }}.key"
 
 # RSYNC NOTATION !!!! BE CAREFUL!
 # src=/dir1 dst=/dir2 - synced dir1 into /dir2/dir1
 # src=/dir1/* dst=/dir2 - synced dir1 into /dir2/
+nginx_sync_public_dir: false
+# on local machine
 nginx_public_src_dir: "{{ application_dir }}/public"
+# on remote
 nginx_public_dst_dir: "{{ application_dir }}/"
+# if this is set the source well be this host not a local machine
 nginx_public_src_host: ""
 #
 nginx_default_server: false
+
+nginx_ssl_key: |
+  ssl certificate, set it in your inventory/group_vars/(all|whatever)/private.yml
+nginx_ssl_cert: |
+  ssl certificate's private key, set it in your inventory/group_vars/(all|whatever)/private.yml
+
 
 # redis
 redis_packages:
@@ -151,7 +158,6 @@ redis_password: ""
 
 # git keys
 
-git_rsa_pub: "rsa public key to access git repo, set it in private.yml"
+git_rsa_pub: "rsa public key to access git repo, set it in your inventory/group_vars/(all|whatever)/private.yml"
 git_rsa_key: |
-  rsa private key to access git repo, set it in private.yml
-
+  rsa private key to access git repo, set it in your inventory/group_vars/(all|whatever)/private.yml

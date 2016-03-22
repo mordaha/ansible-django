@@ -12,7 +12,9 @@
         alias {{ application_dir }}/public/static/;
     }
 
+    {% if nginx_use_secure_link %}
     location /media/files/ {
+	    add_header Cache-Control private;
         secure_link $arg_md5,$arg_expires;
         secure_link_md5 "$secure_link_expires$uri$remote_addr {{ django_secret_key }}";
 
@@ -26,6 +28,7 @@
 
         root {{ application_dir }}/public/;
     }
+    {% endif %}
 
     location  /media/ {
 	    add_header Cache-Control private;
