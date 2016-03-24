@@ -70,6 +70,7 @@
     src="{{  nginx_public_src_dir }}"
     dest="{{  nginx_public_dst_dir }}"
 #    partial=yes
+#    partial=yes
 #  delegate_to: "{{ nginx_public_src_host }}"
   when: nginx_sync_public_dir
   tags:

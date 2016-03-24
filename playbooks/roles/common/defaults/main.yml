@@ -129,9 +129,9 @@ nginx_ssl_key_file: "{{ nginx_ssl_dir }}/{{ application_name }}.key"
 # src=/dir1/* dst=/dir2 - synced dir1 into /dir2/
 nginx_sync_public_dir: false
 # on local machine
-nginx_public_src_dir: "{{ application_dir }}/public"
+nginx_public_src_dir: "{{ application_dir }}/public/media"
 # on remote
-nginx_public_dst_dir: "{{ application_dir }}/"
+nginx_public_dst_dir: "{{ application_dir }}/public/"
 # if this is set the source well be this host not a local machine
 nginx_public_src_host: ""
 #
