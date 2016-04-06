@@ -53,6 +53,7 @@ application_virtualenv_requirements:
   - "{{ application_dir }}/src/requirements.txt"
 
 application_virtualenv_extra_packages:
+ - hiredis
  - django-redis-cache
  - django-redis-sessions
 
