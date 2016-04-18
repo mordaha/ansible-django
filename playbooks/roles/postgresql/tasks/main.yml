@@ -25,11 +25,18 @@
   when: postgresql_postgis_enabled
 
 
+- name: remove old listen config
+  lineinfile: >
+    dest="/etc/postgresql/{{ postgresql_version }}/main/postgresql.conf"
+    regexp="listen_addresses"
+    state=absent
+  notify: restart postgresql
+
+
 - name: listen on public interface
   lineinfile: >
     dest="/etc/postgresql/{{ postgresql_version }}/main/postgresql.conf"
-    insertafter="^#listen_addresses"
-    line="listen_addresses = '*'"
+    line="listen_addresses = 'localhost,{{ inventory_host_ip.stdout }}'"
     state=present
   notify: restart postgresql
 

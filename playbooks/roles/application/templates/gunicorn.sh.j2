@@ -11,4 +11,4 @@ exec {{ application_virtualenv_dir }}/bin/gunicorn wsgi:application \
   --workers {{ gunicorn_workers }} \
   --user={{ application_user }} \
   --log-level={{ gunicorn_log_level }} \
-  --bind={{ gunicorn_bind }}
+  --bind={{ inventory_host_ip.stdout }}:{{ gunicorn_port }}

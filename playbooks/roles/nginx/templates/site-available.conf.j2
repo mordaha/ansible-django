@@ -7,7 +7,7 @@ upstream {{ application_name }}_server {
 {% if not nginx_default_server %}
 # remove www. part
   server {
-      listen       {{ inventory_hostname }}:80;
+      listen       {{ inventory_host_ip.stdout }}:80;
       {% if application_env == 'dev' %}
       listen       127.0.0.1:80;
       {% endif %}
@@ -16,7 +16,7 @@ upstream {{ application_name }}_server {
   }
 
   server {
-      listen       {{ inventory_hostname }}:443;
+      listen       {{ inventory_host_ip.stdout }}:443;
       {% if application_env == 'dev' %}
       listen       127.0.0.1:443;
       {% endif %}
@@ -36,7 +36,7 @@ upstream {{ application_name }}_server {
 #--------------------------
 {% if  nginx_ssl_only %}
 server {
-      listen       {{ inventory_hostname }}:80;
+      listen       {{ inventory_host_ip.stdout }}:80;
         {% if application_env == 'dev' %}
         listen       127.0.0.1:80;
         {% endif %}
@@ -46,7 +46,7 @@ server {
 {% else %}
 server {
 
-    listen       {{ inventory_hostname }}:80;
+    listen       {{ inventory_host_ip.stdout }}:80;
     {% if application_env == 'dev' %}
     listen       127.0.0.1:80;
     {% endif %}
@@ -74,7 +74,7 @@ server {
 #--------------------------
 server {
 
-    listen       {{ inventory_hostname }}:443 ssl;
+    listen       {{ inventory_host_ip.stdout }}:443 ssl;
     {% if application_env == 'dev' %}
     listen       127.0.0.1:443 ssl;
     {% endif %}

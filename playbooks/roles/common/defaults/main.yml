@@ -61,6 +61,7 @@ application_virtualenv_extra_packages:
 application_db_engine: "django.db.backends.postgresql"
 application_gis_db_engine: "django.contrib.gis.db.backends.postgis"
 
+application_db_port: 5432
 application_db_name: "{{ application_name }}"
 application_db_user: "{{ application_user }}"
 application_db_password: "12345"
@@ -82,9 +83,7 @@ local_dev: "false"
 # gunicorn
 gunicorn_workers: 2
 gunicorn_log_level: debug
-gunicorn_host: "{{  inventory_hostname }}"
 gunicorn_port: "9000"
-gunicorn_bind: "{{ gunicorn_host }}:{{ gunicorn_port }}"
 gunicorn_bind_to_public: false
 
 # supervisor
@@ -94,6 +93,7 @@ gunicorn_bind_to_public: false
 postgresql_db_name: "{{ application_db_name }}"
 postgresql_db_user: "{{ application_db_user }}"
 postgresql_db_password: "{{ application_db_password }}"
+postgresql_db_port: "{{ application_db_port }}"
 postgresql_packages:
   - build-essential
   - postgresql

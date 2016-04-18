@@ -1,0 +1,4 @@
+---
+- name: capturing ip to inventory_host_ip var
+  shell: "ping -c1 -t1 -W0 {{ inventory_hostname }} 2>&1 | tr -d '():' | awk '/^PING/{print $3}'"
+  register: inventory_host_ip
