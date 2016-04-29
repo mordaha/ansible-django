@@ -67,7 +67,7 @@
     line="host all all {{ control_ip }}/32 trust"
     state=present
   notify: restart postgresql
-  when: application_env == "dev"
+  when: control_ip != ''
 
 
 - name: create user postgresql_db_user
