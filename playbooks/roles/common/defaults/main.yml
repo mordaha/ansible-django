@@ -133,7 +133,7 @@ nginx_sync_public_dir: false
 nginx_public_src_dir: "{{ application_dir }}/public/media"
 # on remote
 nginx_public_dst_dir: "{{ application_dir }}/public/"
-# if this is set the source well be this host not a local machine
+# if this is set the source will be this host not a local machine
 nginx_public_src_host: ""
 #
 nginx_default_server: false

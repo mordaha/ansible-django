@@ -4,7 +4,7 @@ echo "Starting {{ application_name }} as `whoami`"
 
 cd {{ django_dir }}
 
-{% include "env.j2" %}
+export DJANGO_SETTINGS_MODULE='project.settings.{{ application_env }}'
 
 exec {{ application_virtualenv_dir }}/bin/gunicorn wsgi:application \
   --name {{ application_name }} \
